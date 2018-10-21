@@ -1,10 +1,9 @@
 $bar-color: #b8c2cc !default;
 $bar-stroke: #8D99A6 !default;
-$border-color: #e0e0e0 !default;
-$light-bg: #f5f5f5 !default;
-$light-border-color: #ebeff2 !default;
+$border-color: rgba(196, 196, 196, 0.4) !default;
+$light-border-color: #CBCCD0 !default;
 $light-yellow: #fcf8e3 !default;
-$text-muted: #666 !default;
+$text-muted: #222 !default;
 $text-light: #555 !default;
 $text-color: #333 !default;
 $blue: #a3a3ff !default;
@@ -16,23 +15,18 @@ $handle-color: #ddd !default;
 	}
 	.grid-header {
 		fill: #ffffff;
-		stroke: $border-color;
-		stroke-width: 1.4;
 	}
 	.grid-row {
 		fill: #ffffff;
-	}
-	.grid-row:nth-child(even) {
-		fill: $light-bg;
 	}
 	.row-line {
 		stroke: $light-border-color;
 	}
 	.tick {
 		stroke: $border-color;
-		stroke-width: 0.2;
+		stroke-width: 0.8;
 		&.thick {
-			stroke-width: 0.4;
+			stroke-width: 1.2;
 		}
 	}
 	.today-highlight {
@@ -70,8 +64,8 @@ $handle-color: #ddd !default;
 		fill: #fff;
 		dominant-baseline: central;
 		text-anchor: middle;
-		font-size: 12px;
-		font-weight: lighter;
+		font-size: 13px;
+		font-weight: bold;
 
 		&.big {
 			fill: $text-light;
@@ -93,11 +87,11 @@ $handle-color: #ddd !default;
 
 		&:hover {
 			.bar {
-				fill: darken($bar-color, 5);
+				opacity: 0.7;
 			}
 
 			.bar-progress {
-				fill: darken($blue, 5);
+				opacity: 0.7;
 			}
 
 			.handle {
@@ -108,17 +102,17 @@ $handle-color: #ddd !default;
 
 		&.active {
 			.bar {
-				fill: darken($bar-color, 5);
+				opacity: 0.7;
 			}
 
 			.bar-progress {
-				fill: darken($blue, 5);
+				opacity: 0.7;
 			}
 		}
 	}
 
 	.lower-text, .upper-text {
-		font-size: 12px;
+		font-size: 13px;
 		text-anchor: middle;
 	}
 	.upper-text {
@@ -136,16 +130,17 @@ $handle-color: #ddd !default;
 .gantt-container {
 	position: relative;
 	overflow: auto;
-	font-size: 12px;
+	font-size: 13px;
 
 	.popup-wrapper {
 		position: absolute;
 		top: 0;
 		left: 0;
-		background: rgba(0, 0, 0, 0.8);
+		background: rgba(34, 34, 34, 0.8);
 		padding: 0;
 		color: #959da5;
 		border-radius: 3px;
+		pointer-events: none;
 
 		.title {
 			border-bottom: 3px solid $blue;

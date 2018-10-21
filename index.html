@@ -6,15 +6,26 @@
 	<style>
 		body {
 			font-family: sans-serif;
-			background: #ccc;
+			background: #fff;
 		}
 		.container {
 			width: 80%;
 			margin: 0 auto;
 		}
 		/* custom class */
-		.gantt .bar-milestone .bar {
-			fill: tomato;
+		.gantt .bar-finished .bar {
+			fill: #3AA545;
+		}
+		.gantt .bar-running .bar {
+			fill: #229ACE;
+		}
+		.gantt .bar-waiting .bar {
+			fill: #FABE53;
+		}
+		.gantt-container .popup-wrapper .custom-popup {
+			white-space: nowrap;
+			padding: 8px;
+			color: #fff;
 		}
 	</style>
 	<link rel="stylesheet" href="dist/frappe-gantt.css" />
@@ -28,59 +39,51 @@
 	<script>
 		var tasks = [
 			{
-				start: '2018-10-01',
-				end: '2018-10-08',
-				name: 'Redesign website',
+				start: '2018-10-01 13:00:00',
+				end: '2018-10-01 13:00:30',
+				name: 'Finished',
 				id: "Task 0",
-				progress: 20
+				custom_class: 'bar-finished'
 			},
 			{
-				start: '2018-10-03',
-				end: '2018-10-06',
-				name: 'Write new content',
+				start: '2018-10-01 13:00:45',
+				end: '2018-10-01 13:01:10',
+				name: 'Finished',
 				id: "Task 1",
-				progress: 5,
-				dependencies: 'Task 0'
+				dependencies: 'Task 0',
+				custom_class: 'bar-finished'
 			},
 			{
-				start: '2018-10-04',
-				end: '2018-10-08',
-				name: 'Apply new styles',
+				start: '2018-10-01 13:02:45',
+				end: '2018-10-01 13:04:20',
+				name: 'Finished',
 				id: "Task 2",
-				progress: 10,
-				dependencies: 'Task 1'
+				dependencies: 'Task 1',
+				custom_class: 'bar-finished'
 			},
 			{
-				start: '2018-10-08',
-				end: '2018-10-09',
-				name: 'Review',
+				start: '2018-10-01 13:04:22',
+				end: '2018-10-01 13:05:20',
+				name: 'Finished',
 				id: "Task 3",
-				progress: 5,
-				dependencies: 'Task 2'
+				dependencies: 'Task 2',
+				custom_class: 'bar-finished'
 			},
 			{
-				start: '2018-10-08',
-				end: '2018-10-10',
-				name: 'Deploy',
+				start: '2018-10-01 13:05:25',
+				end: '2018-10-01 13:08:00',
+				name: 'Running',
 				id: "Task 4",
-				progress: 0,
-				dependencies: 'Task 2'
+				dependencies: 'Task 2',
+				custom_class: 'bar-running'
 			},
 			{
-				start: '2018-10-11',
-				end: '2018-10-11',
-				name: 'Go Live!',
+				start: '2018-10-01 13:08:12',
+				end: '2018-10-01 13:25:00',
+				name: 'Waiting',
 				id: "Task 5",
-				progress: 0,
 				dependencies: 'Task 4',
-				custom_class: 'bar-milestone'
-			},
-			{
-				start: '2014-01-05',
-				end: '2019-10-12',
-				name: 'Long term task',
-				id: "Task 6",
-				progress: 0
+				custom_class: 'bar-waiting'
 			}
 		]
 		var gantt_chart = new Gantt(".gantt-target", tasks, {
@@ -93,13 +96,17 @@
 			on_progress_change: function(task, progress) {
 				console.log(task, progress);
 			},
-			on_view_change: function(mode) {
-				console.log(mode);
-			},
-			view_mode: 'Month',
-			language: 'en'
+			view_mode: '5 Minutes',
+			language: 'en',
+			date_format: 'YYYY-MM-DD HH:mm:ss',
+			header_height: 20,
+			bar_height: 28,
+			is_editable: false,
+			popup_trigger: 'mouseover',
+			custom_popup_html: function(task) {
+				return `<div class="custom-popup">${task.id}</div>`
+			}
 		});
-		console.log(gantt_chart);
 	</script>
 </body>
 </html>

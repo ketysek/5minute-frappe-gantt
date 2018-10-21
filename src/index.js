@@ -74,7 +74,8 @@ export default class Gantt {
                 'Day',
                 'Week',
                 'Month',
-                'Year'
+                'Year',
+                '5 Minutes'
             ],
             bar_height: 20,
             bar_corner_radius: 3,
@@ -84,7 +85,8 @@ export default class Gantt {
             date_format: 'YYYY-MM-DD',
             popup_trigger: 'click',
             custom_popup_html: null,
-            language: 'en'
+            language: 'en',
+            is_editable: true
         };
         this.options = Object.assign({}, default_options, options);
     }
@@ -198,6 +200,9 @@ export default class Gantt {
         } else if (view_mode === 'Year') {
             this.options.step = 24 * 365;
             this.options.column_width = 120;
+        } else if (view_mode === '5 Minutes') {
+            this.options.step = 5;
+            this.options.column_width = 100;
         }
     }
 
@@ -219,8 +224,13 @@ export default class Gantt {
             }
         }
 
-        this.gantt_start = date_utils.start_of(this.gantt_start, 'day');
-        this.gantt_end = date_utils.start_of(this.gantt_end, 'day');
+        if(this.view_is('5 Minutes')) {
+            this.gantt_start = date_utils.start_of(this.gantt_start, 'minute');
+            this.gantt_end = date_utils.start_of(this.gantt_end, 'minute');
+        } else {
+            this.gantt_start = date_utils.start_of(this.gantt_start, 'day');
+            this.gantt_end = date_utils.start_of(this.gantt_end, 'day');
+        }
 
         // add date padding on both sides
         if (this.view_is(['Quarter Day', 'Half Day'])) {
@@ -232,6 +242,14 @@ export default class Gantt {
         } else if (this.view_is('Year')) {
             this.gantt_start = date_utils.add(this.gantt_start, -2, 'year');
             this.gantt_end = date_utils.add(this.gantt_end, 2, 'year');
+        } else if(this.view_is('5 Minutes')) {
+            // align start to multiply of 5
+            const start_padding = this.gantt_start.getMinutes() % 5
+            this.gantt_start = date_utils.add(
+                this.gantt_start,
+                - (start_padding == 0 ? 5 : start_padding),
+                'minute'
+            )
         } else {
             this.gantt_start = date_utils.add(this.gantt_start, -1, 'month');
             this.gantt_end = date_utils.add(this.gantt_end, 1, 'month');
@@ -250,6 +268,8 @@ export default class Gantt {
                     cur_date = date_utils.add(cur_date, 1, 'year');
                 } else if (this.view_is('Month')) {
                     cur_date = date_utils.add(cur_date, 1, 'month');
+                } else if (this.view_is('5 Minutes')) {
+                    cur_date = date_utils.add(cur_date, this.options.step, 'minute');
                 } else {
                     cur_date = date_utils.add(
                         cur_date,
@@ -264,7 +284,9 @@ export default class Gantt {
 
     bind_events() {
         this.bind_grid_click();
-        this.bind_bar_events();
+        if(this.options.is_editable) {
+            this.bind_bar_events();
+        }
     }
 
     render() {
@@ -393,6 +415,11 @@ export default class Gantt {
                 tick_class += ' thick';
             }
 
+            // thick ticks for hours
+            if (this.view_is('5 Minutes' && (date.getMinutes() == 0))) {
+                tick_class += ' thick';
+            }
+
             createSVG('path', {
                 d: `M ${tick_x} ${tick_y} v ${tick_height}`,
                 class: tick_class,
@@ -481,6 +508,10 @@ export default class Gantt {
             last_date = date_utils.add(date, 1, 'year');
         }
         const date_text = {
+            '5 Minutes_lower':
+                date.getHours() !== last_date.getHours()
+                    ? date_utils.format(date, 'HH:mm', this.options.language)
+                    : date_utils.format(date, 'mm', this.options.language),
             'Quarter Day_lower': date_utils.format(
                 date,
                 'HH',
@@ -501,6 +532,10 @@ export default class Gantt {
                     : date_utils.format(date, 'D', this.options.language),
             Month_lower: date_utils.format(date, 'MMMM', this.options.language),
             Year_lower: date_utils.format(date, 'YYYY', this.options.language),
+            '5 Minutes_upper': 
+                date.getDate() !== last_date.getDate()
+                    ? date_utils.format(date, 'D MMM', this.options.language)
+                    : '',
             'Quarter Day_upper':
                 date.getDate() !== last_date.getDate()
                     ? date_utils.format(date, 'D MMM', this.options.language)
@@ -547,7 +582,8 @@ export default class Gantt {
             Month_lower: this.options.column_width / 2,
             Month_upper: this.options.column_width * 12 / 2,
             Year_lower: this.options.column_width / 2,
-            Year_upper: this.options.column_width * 30 / 2
+            Year_upper: this.options.column_width * 30 / 2,
+            '5 Minutes_lower': this.options.column_width / 2,
         };
 
         return {

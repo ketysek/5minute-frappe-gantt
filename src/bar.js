@@ -26,9 +26,15 @@ export default class Bar {
         this.x = this.compute_x();
         this.y = this.compute_y();
         this.corner_radius = this.gantt.options.bar_corner_radius;
-        this.duration =
-            date_utils.diff(this.task._end, this.task._start, 'hour') /
-            this.gantt.options.step;
+        if(this.gantt.view_is('5 Minutes')) {
+            this.duration =
+                date_utils.diff(this.task._end, this.task._start, 'second') /
+                    60 / this.gantt.options.step;
+        } else {
+            this.duration =
+                date_utils.diff(this.task._end, this.task._start, 'hour') /
+                    this.gantt.options.step;
+        }
         this.width = this.gantt.options.column_width * this.duration;
         this.progress_width =
             this.gantt.options.column_width *
@@ -42,10 +48,12 @@ export default class Bar {
             class: 'bar-group',
             append_to: this.group
         });
-        this.handle_group = createSVG('g', {
-            class: 'handle-group',
-            append_to: this.group
-        });
+        if(this.gantt.options.is_editable) {
+            this.handle_group = createSVG('g', {
+                class: 'handle-group',
+                append_to: this.group
+            });
+        }
     }
 
     prepare_helpers() {
@@ -70,7 +78,9 @@ export default class Bar {
         this.draw_bar();
         this.draw_progress_bar();
         this.draw_label();
-        this.draw_resize_handles();
+        if(this.gantt.options.is_editable) {
+            this.draw_resize_handles();
+        }
     }
 
     draw_bar() {
@@ -175,7 +185,7 @@ export default class Bar {
     }
 
     setup_click_event() {
-        $.on(this.group, 'focus ' + this.gantt.options.popup_trigger, e => {
+        $.on(this.group, 'focus click ' + this.gantt.options.popup_trigger, e => {
             if (this.action_completed) {
                 // just finished a move action, wait for a few seconds
                 return;
@@ -187,7 +197,6 @@ export default class Bar {
 
             this.gantt.unselect_all();
             this.group.classList.toggle('active');
-
             this.show_popup();
         });
     }
@@ -305,6 +314,11 @@ export default class Bar {
         if (this.gantt.view_is('Month')) {
             const diff = date_utils.diff(task_start, gantt_start, 'day');
             x = diff * column_width / 30;
+        }
+
+        if (this.gantt.view_is('5 Minutes')) {
+            const diff = date_utils.diff(task_start, gantt_start, 'second');
+            x = diff / 60 / step * column_width;
         }
         return x;
     }
