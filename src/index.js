@@ -396,7 +396,8 @@ export default class Gantt {
             (this.options.bar_height + this.options.padding) *
             this.tasks.length;
 
-        for (let date of this.dates) {
+        for (let [index, date] of this.dates.entries()) {
+
             let tick_class = 'tick';
             // thick tick for monday
             if (this.view_is('Day') && date.getDate() === 1) {
@@ -420,11 +421,14 @@ export default class Gantt {
                 tick_class += ' thick';
             }
 
-            createSVG('path', {
-                d: `M ${tick_x} ${tick_y} v ${tick_height}`,
-                class: tick_class,
-                append_to: this.layers.grid
-            });
+            // dont draw first vertical line
+            if(index !== 0) {
+                createSVG('path', {
+                    d: `M ${tick_x} ${tick_y} v ${tick_height}`,
+                    class: tick_class,
+                    append_to: this.layers.grid
+                });
+            }
 
             if (this.view_is('Month')) {
                 tick_x +=

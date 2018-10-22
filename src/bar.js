@@ -185,7 +185,8 @@ export default class Bar {
     }
 
     setup_click_event() {
-        $.on(this.group, 'focus click ' + this.gantt.options.popup_trigger, e => {
+        const trigger = this.gantt.options.popup_trigger
+        $.on(this.group, trigger !== 'click' ? `focus click ${trigger}` : 'focus click', e => {
             if (this.action_completed) {
                 // just finished a move action, wait for a few seconds
                 return;

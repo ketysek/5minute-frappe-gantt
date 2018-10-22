@@ -589,7 +589,8 @@ class Bar {
     }
 
     setup_click_event() {
-        $.on(this.group, 'focus click ' + this.gantt.options.popup_trigger, e => {
+        const trigger = this.gantt.options.popup_trigger;
+        $.on(this.group, trigger !== 'click' ? `focus click ${trigger}` : 'focus click', e => {
             if (this.action_completed) {
                 // just finished a move action, wait for a few seconds
                 return;
@@ -1372,7 +1373,8 @@ class Gantt {
             (this.options.bar_height + this.options.padding) *
             this.tasks.length;
 
-        for (let date of this.dates) {
+        for (let [index, date] of this.dates.entries()) {
+
             let tick_class = 'tick';
             // thick tick for monday
             if (this.view_is('Day') && date.getDate() === 1) {
@@ -1396,11 +1398,14 @@ class Gantt {
                 tick_class += ' thick';
             }
 
-            createSVG('path', {
-                d: `M ${tick_x} ${tick_y} v ${tick_height}`,
-                class: tick_class,
-                append_to: this.layers.grid
-            });
+            // dont draw first vertical line
+            if(index !== 0) {
+                createSVG('path', {
+                    d: `M ${tick_x} ${tick_y} v ${tick_height}`,
+                    class: tick_class,
+                    append_to: this.layers.grid
+                });
+            }
 
             if (this.view_is('Month')) {
                 tick_x +=
