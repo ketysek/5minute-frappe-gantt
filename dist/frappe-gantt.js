@@ -1330,7 +1330,7 @@ class Gantt {
 
         let row_y = this.options.header_height + this.options.padding / 2;
 
-        for (let task of this.tasks) {
+        for (let [index, task] of this.tasks.entries()) {
             createSVG('rect', {
                 x: 0,
                 y: row_y,
@@ -1340,14 +1340,16 @@ class Gantt {
                 append_to: rows_layer
             });
 
-            createSVG('line', {
-                x1: 0,
-                y1: row_y + row_height,
-                x2: row_width,
-                y2: row_y + row_height,
-                class: 'row-line',
-                append_to: lines_layer
-            });
+            if(index !== this.tasks.length - 1) {
+                createSVG('line', {
+                    x1: 0,
+                    y1: row_y + row_height,
+                    x2: row_width,
+                    y2: row_y + row_height,
+                    class: 'row-line',
+                    append_to: lines_layer
+                });
+            }
 
             row_y += this.options.bar_height + this.options.padding;
         }
