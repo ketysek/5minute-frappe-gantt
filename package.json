@@ -1,7 +1,7 @@
 {
-  "name": "frappe-gantt",
-  "version": "0.3.0",
-  "description": "A simple, modern, interactive gantt library for the web",
+  "name": "5minute-frappe-gantt",
+  "version": "0.0.1",
+  "description": "5minute timeline version of Frappe gantt",
   "main": "src/index.js",
   "scripts": {
     "start": "yarn run dev",
@@ -23,12 +23,9 @@
     "interactive gantt",
     "project management"
   ],
-  "author": "Faris Ansari",
+  "author": "Jirka Ketner",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/frappe/gantt/issues"
-  },
-  "homepage": "https://github.com/frappe/gantt",
+  "homepage": "https://github.com/ketysek/5minute-frappe-gantt",
   "devDependencies": {
     "babel-preset-env": "^1.6.1",
     "deepmerge": "^2.0.1",
