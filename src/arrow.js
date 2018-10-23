@@ -29,7 +29,7 @@ export default class Arrow {
                 this.from_task.task._index +
             this.gantt.options.padding;
 
-        const end_x = this.to_task.$bar.getX() - this.gantt.options.padding / 2;
+        const end_x = this.to_task.$bar.getX() - 1;
         const end_y =
             this.gantt.options.header_height +
             this.gantt.options.bar_height / 2 +

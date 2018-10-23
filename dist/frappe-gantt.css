@@ -65,16 +65,20 @@
   cursor: pointer;
   outline: none; }
   .gantt .bar-wrapper:hover .bar {
-    stroke-width: 2; }
+    stroke-width: 1;
+    stroke: #222; }
   .gantt .bar-wrapper:hover .bar-progress {
-    stroke-width: 2; }
+    stroke-width: 1;
+    stroke: #222; }
   .gantt .bar-wrapper:hover .handle {
     visibility: visible;
     opacity: 1; }
   .gantt .bar-wrapper.active .bar {
-    stroke-width: 2; }
+    stroke-width: 1;
+    stroke: #222; }
   .gantt .bar-wrapper.active .bar-progress {
-    stroke-width: 2; }
+    stroke-width: 1;
+    stroke: #222; }
 
 .gantt .lower-text, .gantt .upper-text {
   font-size: 13px;

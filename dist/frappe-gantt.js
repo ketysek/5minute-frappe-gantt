@@ -848,7 +848,7 @@ class Arrow {
                 this.from_task.task._index +
             this.gantt.options.padding;
 
-        const end_x = this.to_task.$bar.getX() - this.gantt.options.padding / 2;
+        const end_x = this.to_task.$bar.getX() - 1;
         const end_y =
             this.gantt.options.header_height +
             this.gantt.options.bar_height / 2 +
@@ -1063,7 +1063,8 @@ class Gantt {
             popup_trigger: 'click',
             custom_popup_html: null,
             language: 'en',
-            is_editable: true
+            is_editable: true,
+            min_columns_count: 0
         };
         this.options = Object.assign({}, default_options, options);
     }
@@ -1227,6 +1228,15 @@ class Gantt {
                 - (start_padding == 0 ? 5 : start_padding),
                 'minute'
             );
+            const startEndDiff = date_utils.diff(this.gantt_end, this.gantt_start, 'minute');
+            const minRequiredDiff = this.options.min_columns_count * 5 - 5;
+            if(startEndDiff < minRequiredDiff) {
+                this.gantt_end = date_utils.add(
+                    this.gantt_end,
+                    minRequiredDiff - startEndDiff,
+                    'minute'
+                );
+            }
         } else {
             this.gantt_start = date_utils.add(this.gantt_start, -1, 'month');
             this.gantt_end = date_utils.add(this.gantt_end, 1, 'month');
@@ -1448,14 +1458,16 @@ class Gantt {
     }
 
     make_dates() {
-        for (let date of this.get_dates_to_draw()) {
-            createSVG('text', {
-                x: date.lower_x,
-                y: date.lower_y,
-                innerHTML: date.lower_text,
-                class: 'lower-text',
-                append_to: this.layers.date
-            });
+        for (let [index, date] of this.get_dates_to_draw().entries()) {
+            if(index > 0 || !this.view_is('5 Minutes')) {
+                createSVG('text', {
+                    x: date.lower_x - this.options.column_width / 2,
+                    y: date.lower_y,
+                    innerHTML: date.lower_text,
+                    class: 'lower-text',
+                    append_to: this.layers.date
+                });
+            }
 
             if (date.upper_text) {
                 const $upper_text = createSVG('text', {

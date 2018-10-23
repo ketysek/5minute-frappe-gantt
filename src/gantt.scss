@@ -88,11 +88,13 @@ $handle-color: #ddd !default;
 
 		&:hover {
 			.bar {
-				stroke-width: 2;
+				stroke-width: 1;
+				stroke: $text-muted;
 			}
 
 			.bar-progress {
-				stroke-width: 2;
+				stroke-width: 1;
+				stroke: $text-muted;
 			}
 
 			.handle {
@@ -103,11 +105,13 @@ $handle-color: #ddd !default;
 
 		&.active {
 			.bar {
-				stroke-width: 2;
+				stroke-width: 1;
+				stroke: $text-muted;
 			}
 
 			.bar-progress {
-				stroke-width: 2;
+				stroke-width: 1;
+				stroke: $text-muted;
 			}
 		}
 	}
