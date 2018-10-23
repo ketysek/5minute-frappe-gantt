@@ -8,13 +8,14 @@
   fill: #ffffff; }
 
 .gantt .row-line {
-  stroke: #CBCCD0; }
+  stroke: #CBCCD0;
+  stroke-width: 1px; }
 
 .gantt .tick {
   stroke: rgba(196, 196, 196, 0.4);
-  stroke-width: 0.8; }
+  stroke-width: 1px; }
   .gantt .tick.thick {
-    stroke-width: 1.2; }
+    stroke-width: 1.4px; }
 
 .gantt .today-highlight {
   fill: #fcf8e3;
@@ -64,16 +65,16 @@
   cursor: pointer;
   outline: none; }
   .gantt .bar-wrapper:hover .bar {
-    opacity: 0.7; }
+    stroke-width: 2; }
   .gantt .bar-wrapper:hover .bar-progress {
-    opacity: 0.7; }
+    stroke-width: 2; }
   .gantt .bar-wrapper:hover .handle {
     visibility: visible;
     opacity: 1; }
   .gantt .bar-wrapper.active .bar {
-    opacity: 0.7; }
+    stroke-width: 2; }
   .gantt .bar-wrapper.active .bar-progress {
-    opacity: 0.7; }
+    stroke-width: 2; }
 
 .gantt .lower-text, .gantt .upper-text {
   font-size: 13px;

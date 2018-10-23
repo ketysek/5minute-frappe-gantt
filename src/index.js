@@ -202,7 +202,7 @@ export default class Gantt {
             this.options.column_width = 120;
         } else if (view_mode === '5 Minutes') {
             this.options.step = 5;
-            this.options.column_width = 100;
+            this.options.column_width = 80;
         }
     }
 
