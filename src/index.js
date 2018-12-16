@@ -66,7 +66,7 @@ export default class Gantt {
     setup_options(options) {
         const default_options = {
             header_height: 50,
-            column_width: 30,
+            column_width: null,
             step: 24,
             view_modes: [
                 'Quarter Day',
@@ -75,7 +75,8 @@ export default class Gantt {
                 'Week',
                 'Month',
                 'Year',
-                '5 Minutes'
+                '5 Minutes',
+                'Minute'
             ],
             bar_height: 20,
             bar_corner_radius: 3,
@@ -185,25 +186,28 @@ export default class Gantt {
 
         if (view_mode === 'Day') {
             this.options.step = 24;
-            this.options.column_width = 38;
+            this.options.column_width = this.options.column_width ? this.options.column_width : 38;
         } else if (view_mode === 'Half Day') {
             this.options.step = 24 / 2;
-            this.options.column_width = 38;
+            this.options.column_width = this.options.column_width ? this.options.column_width : 38;
         } else if (view_mode === 'Quarter Day') {
             this.options.step = 24 / 4;
-            this.options.column_width = 38;
+            this.options.column_width = this.options.column_width ? this.options.column_width : 38;
         } else if (view_mode === 'Week') {
             this.options.step = 24 * 7;
-            this.options.column_width = 140;
+            this.options.column_width = this.options.column_width ? this.options.column_width : 140;
         } else if (view_mode === 'Month') {
             this.options.step = 24 * 30;
-            this.options.column_width = 120;
+            this.options.column_width = this.options.column_width ? this.options.column_width : 120;
         } else if (view_mode === 'Year') {
             this.options.step = 24 * 365;
-            this.options.column_width = 120;
+            this.options.column_width = this.options.column_width ? this.options.column_width : 120;
         } else if (view_mode === '5 Minutes') {
             this.options.step = 5;
-            this.options.column_width = 80;
+            this.options.column_width = this.options.column_width ? this.options.column_width : 80;
+        } else if (view_mode === 'Minute') {
+            this.options.step = 1;
+            this.options.column_width = this.options.column_width ? this.options.column_width : 38;
         }
     }
 
@@ -225,7 +229,7 @@ export default class Gantt {
             }
         }
 
-        if(this.view_is('5 Minutes')) {
+        if(this.view_is('5 Minutes') || this.view_is('Minute')) {
             this.gantt_start = date_utils.start_of(this.gantt_start, 'minute');
             this.gantt_end = date_utils.start_of(this.gantt_end, 'minute');
         } else {
@@ -245,21 +249,24 @@ export default class Gantt {
             this.gantt_end = date_utils.add(this.gantt_end, 2, 'year');
         } else if(this.view_is('5 Minutes')) {
             // align start to multiply of 5
-            const start_padding = this.gantt_start.getMinutes() % 5
+            const start_padding = this.gantt_start.getMinutes() % 5;
             this.gantt_start = date_utils.add(
                 this.gantt_start,
                 - (start_padding == 0 ? 5 : start_padding),
                 'minute'
-            )
-            const startEndDiff = date_utils.diff(this.gantt_end, this.gantt_start, 'minute')
-            const minRequiredDiff = this.options.min_columns_count * 5 - 5
+            );
+            const startEndDiff = date_utils.diff(this.gantt_end, this.gantt_start, 'minute');
+            const minRequiredDiff = this.options.min_columns_count * 5 - 5;
             if(startEndDiff < minRequiredDiff) {
                 this.gantt_end = date_utils.add(
                     this.gantt_end,
                     minRequiredDiff - startEndDiff,
                     'minute'
-                )
+                );
             }
+        } else if(this.view_is('Minute')) {
+            this.gantt_start = date_utils.add(this.gantt_start, -1, 'minute');
+            this.gantt_end = date_utils.add(this.gantt_end, 1, 'minute');
         } else {
             this.gantt_start = date_utils.add(this.gantt_start, -1, 'month');
             this.gantt_end = date_utils.add(this.gantt_end, 1, 'month');
@@ -278,7 +285,7 @@ export default class Gantt {
                     cur_date = date_utils.add(cur_date, 1, 'year');
                 } else if (this.view_is('Month')) {
                     cur_date = date_utils.add(cur_date, 1, 'month');
-                } else if (this.view_is('5 Minutes')) {
+                } else if (this.view_is('5 Minutes') || this.view_is('Minute')) {
                     cur_date = date_utils.add(cur_date, this.options.step, 'minute');
                 } else {
                     cur_date = date_utils.add(
@@ -429,8 +436,12 @@ export default class Gantt {
             }
 
             // thick ticks for hours
-            if (this.view_is('5 Minutes' && (date.getMinutes() == 0))) {
+            if (this.view_is('5 Minutes' && (date.getMinutes() === 0))) {
                 tick_class += ' thick';
+            }
+
+            if (this.view_is('Minute') && (date.getMinutes() % 10 === 0)) {
+                tick_class += ' thick'
             }
 
             // dont draw first vertical line
@@ -482,7 +493,7 @@ export default class Gantt {
 
     make_dates() {
         for (let [index, date] of this.get_dates_to_draw().entries()) {
-            if(index > 0 || !this.view_is('5 Minutes')) {
+            if(index > 0 || !this.view_is('5 Minutes') || !this.view_is('Minute')) {
                 createSVG('text', {
                     x: date.lower_x - this.options.column_width / 2,
                     y: date.lower_y,
@@ -526,6 +537,10 @@ export default class Gantt {
             last_date = date_utils.add(date, 1, 'year');
         }
         const date_text = {
+            'Minute_lower':
+                date.getMinutes() % 10 === 0
+                    ? date_utils.format(date, 'HH:mm', this.options.language)
+                    : date_utils.format(date, 'mm', this.options.language),
             '5 Minutes_lower':
                 date.getHours() !== last_date.getHours()
                     ? date_utils.format(date, 'HH:mm', this.options.language)
@@ -550,10 +565,8 @@ export default class Gantt {
                     : date_utils.format(date, 'D', this.options.language),
             Month_lower: date_utils.format(date, 'MMMM', this.options.language),
             Year_lower: date_utils.format(date, 'YYYY', this.options.language),
-            '5 Minutes_upper': 
-                date.getDate() !== last_date.getDate()
-                    ? date_utils.format(date, 'D MMM', this.options.language)
-                    : '',
+            'Minute_upper': '',
+            '5 Minutes_upper': '',
             'Quarter Day_upper':
                 date.getDate() !== last_date.getDate()
                     ? date_utils.format(date, 'D MMM', this.options.language)
@@ -602,6 +615,7 @@ export default class Gantt {
             Year_lower: this.options.column_width / 2,
             Year_upper: this.options.column_width * 30 / 2,
             '5 Minutes_lower': this.options.column_width / 2,
+            'Minute_lower': this.options.column_width /2
         };
 
         return {

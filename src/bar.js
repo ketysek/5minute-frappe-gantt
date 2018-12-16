@@ -26,7 +26,7 @@ export default class Bar {
         this.x = this.compute_x();
         this.y = this.compute_y();
         this.corner_radius = this.gantt.options.bar_corner_radius;
-        if(this.gantt.view_is('5 Minutes')) {
+        if(this.gantt.view_is('5 Minutes') || this.gantt.view_is('Minute')) {
             this.duration =
                 date_utils.diff(this.task._end, this.task._start, 'second') /
                     60 / this.gantt.options.step;
@@ -317,7 +317,7 @@ export default class Bar {
             x = diff * column_width / 30;
         }
 
-        if (this.gantt.view_is('5 Minutes')) {
+        if (this.gantt.view_is('5 Minutes') || this.gantt.view_is('Minute')) {
             const diff = date_utils.diff(task_start, gantt_start, 'second');
             x = diff / 60 / step * column_width;
         }
