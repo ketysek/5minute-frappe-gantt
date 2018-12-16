@@ -39,14 +39,14 @@
 	<script>
 		var tasks = [
 			{
-				start: '2018-10-01 13:00:00',
-				end: '2018-10-01 13:00:30',
+				start: '2018-10-01 13:00:40',
+				end: '2018-10-01 13:00:50',
 				name: 'Finished',
 				id: "Task 0",
 				custom_class: 'bar-finished'
 			},
 			{
-				start: '2018-10-01 13:00:45',
+				start: '2018-10-01 13:01:05',
 				end: '2018-10-01 13:01:10',
 				name: 'Finished',
 				id: "Task 1",
@@ -96,14 +96,14 @@
 			on_progress_change: function(task, progress) {
 				console.log(task, progress);
 			},
-			view_mode: '5 Minutes',
+			view_mode: 'Minute',
 			language: 'en',
 			date_format: 'YYYY-MM-DD HH:mm:ss',
 			header_height: 20,
 			bar_height: 28,
-			column_width: 38,
+			column_width: 300,
 			is_editable: false,
-			min_columns_count: 10,
+			min_columns_count: 3,
 			popup_trigger: 'mouseover',
 			custom_popup_html: function(task) {
 				return `<div class="custom-popup">${task.id}</div>`

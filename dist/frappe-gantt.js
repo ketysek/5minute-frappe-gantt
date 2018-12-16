@@ -1473,7 +1473,9 @@ class Gantt {
 
     make_dates() {
         for (let [index, date] of this.get_dates_to_draw().entries()) {
-            if(index > 0 || !this.view_is('5 Minutes') || !this.view_is('Minute')) {
+            if(index > 0) {
+                console.log(date.lower_text);
+                console.log(index);
                 createSVG('text', {
                     x: date.lower_x - this.options.column_width / 2,
                     y: date.lower_y,
