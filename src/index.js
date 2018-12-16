@@ -168,9 +168,12 @@ export default class Gantt {
         }
     }
 
-    refresh(tasks) {
+    refresh(tasks, column_width = null, mode = this.options.view_mode) {
         this.setup_tasks(tasks);
-        this.change_view_mode();
+        if(column_width) {
+            this.options.column_width = column_width;
+        }
+        this.change_view_mode(mode);
     }
 
     change_view_mode(mode = this.options.view_mode) {
