@@ -1,6 +1,6 @@
 {
   "name": "5minute-frappe-gantt",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "5minute timeline version of Frappe gantt",
   "main": "src/index.js",
   "scripts": {
