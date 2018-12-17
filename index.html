@@ -34,17 +34,18 @@
 <body>
 	<div class="container">
 		<h2>Interactive Gantt Chart entirely made in SVG!</h2>
-		<div class="gantt-target"></div>
+		<div class="gantt-target" style="width:918px;margin:0 auto;border: 1px solid black;"></div>
 	</div>
 	<script>
 		var tasks = [
 			{
-				start: '2018-10-01 13:00:40',
-				end: '2018-10-01 13:00:50',
+				start: '2018-10-01 13:00:30',
+				end: '2018-10-01 15:50:00',
 				name: 'Finished',
 				id: "Task 0",
 				custom_class: 'bar-finished'
 			},
+			/*
 			{
 				start: '2018-10-01 13:01:05',
 				end: '2018-10-01 13:01:10',
@@ -85,6 +86,7 @@
 				dependencies: 'Task 4',
 				custom_class: 'bar-waiting'
 			}
+			*/
 		]
 		var gantt_chart = new Gantt(".gantt-target", tasks, {
 			on_click: function (task) {
@@ -96,14 +98,13 @@
 			on_progress_change: function(task, progress) {
 				console.log(task, progress);
 			},
-			view_mode: 'Minute',
 			language: 'en',
 			date_format: 'YYYY-MM-DD HH:mm:ss',
 			header_height: 20,
 			bar_height: 28,
-			column_width: 300,
 			is_editable: false,
-			min_columns_count: 3,
+			width: 918,
+			responsive: true,
 			popup_trigger: 'mouseover',
 			custom_popup_html: function(task) {
 				return `<div class="custom-popup">${task.id}</div>`

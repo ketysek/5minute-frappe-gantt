@@ -1059,13 +1059,15 @@ class Gantt {
             bar_corner_radius: 3,
             arrow_curve: 5,
             padding: 18,
-            view_mode: 'Day',
+            view_mode: 'Minute',
             date_format: 'YYYY-MM-DD',
             popup_trigger: 'click',
             custom_popup_html: null,
             language: 'en',
             is_editable: true,
-            min_columns_count: 0
+            min_columns_count: 3,
+            width: 1000,
+            responsive: false
         };
         this.options = Object.assign({}, default_options, options);
     }
@@ -1145,17 +1147,22 @@ class Gantt {
         }
     }
 
-    refresh(tasks, column_width = null, mode = this.options.view_mode) {
+    refresh(tasks) {
         this.setup_tasks(tasks);
         if(column_width) {
             this.options.column_width = column_width;
         }
-        this.change_view_mode(mode);
+        this.change_view_mode();
     }
 
     change_view_mode(mode = this.options.view_mode) {
+        this.setup_gantt_dates();
+        if(this.options.responsive) {
+            // refresh according to setup_gantt_dates()
+            mode = this.options.view_mode;
+        }
         this.update_view_scale(mode);
-        this.setup_dates();
+        this.setup_date_values();
         this.render();
         // fire viewmode_change event
         this.trigger_event('view_change', [mode]);
@@ -1191,11 +1198,6 @@ class Gantt {
         }
     }
 
-    setup_dates() {
-        this.setup_gantt_dates();
-        this.setup_date_values();
-    }
-
     setup_gantt_dates() {
         this.gantt_start = this.gantt_end = null;
 
@@ -1217,6 +1219,14 @@ class Gantt {
             this.gantt_end = date_utils.start_of(this.gantt_end, 'day');
         }
 
+        if(this.options.responsive) {
+            // responsiveness is implemented up to 2 hours, then it's 5 Minutes charts with scrollbar
+            if(date_utils.diff(this.gantt_end, this.gantt_start, 'minute') < 29) {
+                this.options.view_mode = 'Minute';
+            } else {
+                this.options.view_mode = '5 Minutes';
+            }
+        }
         // add date padding on both sides
         if (this.view_is(['Quarter Day', 'Half Day'])) {
             this.gantt_start = date_utils.add(this.gantt_start, -7, 'day');
@@ -1250,6 +1260,23 @@ class Gantt {
         } else {
             this.gantt_start = date_utils.add(this.gantt_start, -1, 'month');
             this.gantt_end = date_utils.add(this.gantt_end, 1, 'month');
+        }
+        
+        if(this.options.responsive) {
+            var gantt_minute_range = date_utils.diff(this.gantt_end, this.gantt_start, 'minute');
+            if(this.view_is('Minute')) {
+                gantt_minute_range += 1;
+                this.options.column_width = Math.floor(this.options.width / gantt_minute_range);
+            } else if(this.view_is('5 Minutes')) {
+                gantt_minute_range += 5;
+                gantt_minute_range = Math.ceil(gantt_minute_range / 5) * 5;
+                this.options.column_width = Math.floor(
+                    this.options.width / gantt_minute_range * 5
+                );
+                if(this.options.column_width < 30) {
+                    this.options.column_width = 30;
+                }
+            }
         }
     }
 
@@ -1474,8 +1501,6 @@ class Gantt {
     make_dates() {
         for (let [index, date] of this.get_dates_to_draw().entries()) {
             if(index > 0) {
-                console.log(date.lower_text);
-                console.log(index);
                 createSVG('text', {
                     x: date.lower_x - this.options.column_width / 2,
                     y: date.lower_y,
