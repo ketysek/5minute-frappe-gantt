@@ -116,7 +116,7 @@ var date_utils = {
             HH: values[3],
             mm: values[4],
             ss: values[5],
-            SSS:values[6],
+            SSS: values[6],
             D: values[2],
             MMMM: month_names[lang][+values[1]],
             MMM: month_names[lang][+values[1]]
@@ -143,7 +143,6 @@ var date_utils = {
 
     diff(date_a, date_b, scale = DAY) {
         let milliseconds, seconds, hours, minutes, days, months, years;
-
         milliseconds = date_a - date_b;
         seconds = milliseconds / 1000;
         minutes = seconds / 60;
@@ -430,14 +429,19 @@ class Bar {
         this.x = this.compute_x();
         this.y = this.compute_y();
         this.corner_radius = this.gantt.options.bar_corner_radius;
-        if(this.gantt.view_is('5 Minutes') || this.gantt.view_is('Minute')) {
+        if (
+            this.gantt.view_is('5 Minutes') ||
+            this.gantt.view_is('Minute') ||
+            this.gantt.view_is('30 Minutes')
+        ) {
             this.duration =
                 date_utils.diff(this.task._end, this.task._start, 'second') /
-                    60 / this.gantt.options.step;
+                60 /
+                this.gantt.options.step;
         } else {
             this.duration =
                 date_utils.diff(this.task._end, this.task._start, 'hour') /
-                    this.gantt.options.step;
+                this.gantt.options.step;
         }
         this.width = this.gantt.options.column_width * this.duration;
         this.progress_width =
@@ -452,7 +456,7 @@ class Bar {
             class: 'bar-group',
             append_to: this.group
         });
-        if(this.gantt.options.is_editable) {
+        if (this.gantt.options.is_editable) {
             this.handle_group = createSVG('g', {
                 class: 'handle-group',
                 append_to: this.group
@@ -482,7 +486,7 @@ class Bar {
         this.draw_bar();
         this.draw_progress_bar();
         this.draw_label();
-        if(this.gantt.options.is_editable) {
+        if (this.gantt.options.is_editable) {
             this.draw_resize_handles();
         }
     }
@@ -590,20 +594,24 @@ class Bar {
 
     setup_click_event() {
         const trigger = this.gantt.options.popup_trigger;
-        $.on(this.group, trigger !== 'click' ? `focus click ${trigger}` : 'focus click', e => {
-            if (this.action_completed) {
-                // just finished a move action, wait for a few seconds
-                return;
-            }
+        $.on(
+            this.group,
+            trigger !== 'click' ? `focus click ${trigger}` : 'focus click',
+            e => {
+                if (this.action_completed) {
+                    // just finished a move action, wait for a few seconds
+                    return;
+                }
 
-            if (e.type === 'click') {
-                this.gantt.trigger_event('click', [this.task]);
-            }
+                if (e.type === 'click') {
+                    this.gantt.trigger_event('click', [this.task]);
+                }
 
-            this.gantt.unselect_all();
-            this.group.classList.toggle('active');
-            this.show_popup();
-        });
+                this.gantt.unselect_all();
+                this.group.classList.toggle('active');
+                this.show_popup();
+            }
+        );
     }
 
     show_popup() {
@@ -721,7 +729,11 @@ class Bar {
             x = diff * column_width / 30;
         }
 
-        if (this.gantt.view_is('5 Minutes') || this.gantt.view_is('Minute')) {
+        if (
+            this.gantt.view_is('5 Minutes') ||
+            this.gantt.view_is('Minute') ||
+            this.gantt.view_is('30 Minutes')
+        ) {
             const diff = date_utils.diff(task_start, gantt_start, 'second');
             x = diff / 60 / step * column_width;
         }
@@ -729,11 +741,13 @@ class Bar {
     }
 
     compute_y() {
-        return (
-            this.gantt.options.header_height +
-            this.gantt.options.padding +
-            this.task._index * (this.height + this.gantt.options.padding)
-        );
+        const y = this.gantt.options.hide_legend
+            ? this.gantt.options.padding +
+              this.task._index * (this.height + this.gantt.options.padding)
+            : this.gantt.options.header_height +
+              this.gantt.options.padding +
+              this.task._index * (this.height + this.gantt.options.padding);
+        return y;
     }
 
     get_snap_position(dx) {
@@ -841,20 +855,24 @@ class Arrow {
             start_x -= 10;
         }
 
-        const start_y =
-            this.gantt.options.header_height +
+        let start_y =
             this.gantt.options.bar_height +
             (this.gantt.options.padding + this.gantt.options.bar_height) *
                 this.from_task.task._index +
             this.gantt.options.padding;
+        if (!this.gantt.options.hide_legend) {
+            start_y += this.gantt.options.header_height;
+        }
 
         const end_x = this.to_task.$bar.getX() - 1;
-        const end_y =
-            this.gantt.options.header_height +
+        let end_y =
             this.gantt.options.bar_height / 2 +
             (this.gantt.options.padding + this.gantt.options.bar_height) *
                 this.to_task.task._index +
             this.gantt.options.padding;
+        if (!this.gantt.options.hide_legend) {
+            end_y += this.gantt.options.header_height;
+        }
 
         const from_is_below_to =
             this.from_task.task._index > this.to_task.task._index;
@@ -1052,6 +1070,7 @@ class Gantt {
                 'Week',
                 'Month',
                 'Year',
+                '30 Minutes',
                 '5 Minutes',
                 'Minute'
             ],
@@ -1061,13 +1080,17 @@ class Gantt {
             padding: 18,
             view_mode: 'Minute',
             date_format: 'YYYY-MM-DD',
+            start_date: null,
+            end_date: null,
             popup_trigger: 'click',
             custom_popup_html: null,
             language: 'en',
             is_editable: true,
             min_columns_count: 3,
             width: 1000,
-            responsive: false
+            responsive: false,
+            hide_horizontal_lines: false,
+            hide_legend: false
         };
         this.options = Object.assign({}, default_options, options);
     }
@@ -1100,13 +1123,6 @@ class Gantt {
 
             if (task.start && !task.end) {
                 task._end = date_utils.add(task._start, 2, 'day');
-            }
-
-            // if hours is not set, assume the last day is full day
-            // e.g: 2018-09-09 becomes 2018-09-09 23:59:59
-            const task_end_values = date_utils.get_date_values(task._end);
-            if (task_end_values.slice(3).every(d => d === 0)) {
-                task._end = date_utils.add(task._end, 24, 'hour');
             }
 
             // invalid flag
@@ -1149,15 +1165,12 @@ class Gantt {
 
     refresh(tasks) {
         this.setup_tasks(tasks);
-        if(column_width) {
-            this.options.column_width = column_width;
-        }
         this.change_view_mode();
     }
 
     change_view_mode(mode = this.options.view_mode) {
         this.setup_gantt_dates();
-        if(this.options.responsive) {
+        if (this.options.responsive) {
             // refresh according to setup_gantt_dates()
             mode = this.options.view_mode;
         }
@@ -1173,45 +1186,91 @@ class Gantt {
 
         if (view_mode === 'Day') {
             this.options.step = 24;
-            this.options.column_width = this.options.column_width ? this.options.column_width : 38;
+            this.options.column_width = this.options.column_width
+                ? this.options.column_width
+                : 38;
         } else if (view_mode === 'Half Day') {
             this.options.step = 24 / 2;
-            this.options.column_width = this.options.column_width ? this.options.column_width : 38;
+            this.options.column_width = this.options.column_width
+                ? this.options.column_width
+                : 38;
         } else if (view_mode === 'Quarter Day') {
             this.options.step = 24 / 4;
-            this.options.column_width = this.options.column_width ? this.options.column_width : 38;
+            this.options.column_width = this.options.column_width
+                ? this.options.column_width
+                : 38;
         } else if (view_mode === 'Week') {
             this.options.step = 24 * 7;
-            this.options.column_width = this.options.column_width ? this.options.column_width : 140;
+            this.options.column_width = this.options.column_width
+                ? this.options.column_width
+                : 140;
         } else if (view_mode === 'Month') {
             this.options.step = 24 * 30;
-            this.options.column_width = this.options.column_width ? this.options.column_width : 120;
+            this.options.column_width = this.options.column_width
+                ? this.options.column_width
+                : 120;
         } else if (view_mode === 'Year') {
             this.options.step = 24 * 365;
-            this.options.column_width = this.options.column_width ? this.options.column_width : 120;
+            this.options.column_width = this.options.column_width
+                ? this.options.column_width
+                : 120;
+        } else if (view_mode === '30 Minutes') {
+            this.options.step = 30;
+            this.options.column_width = this.options.column_width
+                ? this.options.column_width
+                : 100;
         } else if (view_mode === '5 Minutes') {
             this.options.step = 5;
-            this.options.column_width = this.options.column_width ? this.options.column_width : 80;
+            this.options.column_width = this.options.column_width
+                ? this.options.column_width
+                : 80;
         } else if (view_mode === 'Minute') {
             this.options.step = 1;
-            this.options.column_width = this.options.column_width ? this.options.column_width : 38;
+            this.options.column_width = this.options.column_width
+                ? this.options.column_width
+                : 38;
         }
     }
 
     setup_gantt_dates() {
         this.gantt_start = this.gantt_end = null;
 
-        for (let task of this.tasks) {
-            // set global start and end date
-            if (!this.gantt_start || task._start < this.gantt_start) {
-                this.gantt_start = task._start;
-            }
-            if (!this.gantt_end || task._end > this.gantt_end) {
-                this.gantt_end = task._end;
+        if (this.options.start_date && this.options.end_date) {
+            this.gantt_start = new Date(this.options.start_date);
+            this.gantt_end = new Date(this.options.end_date);
+        } else {
+            for (let task of this.tasks) {
+                // set global start and end date
+                if (!this.gantt_start || task._start < this.gantt_start) {
+                    this.gantt_start = task._start;
+                }
+                if (!this.gantt_end || task._end > this.gantt_end) {
+                    this.gantt_end = task._end;
+                }
             }
         }
 
-        if(this.view_is('5 Minutes') || this.view_is('Minute')) {
+        if (this.options.responsive) {
+            // responsiveness is implemented up to 48 hours
+            const diff = date_utils.diff(
+                this.gantt_end,
+                this.gantt_start,
+                'minute'
+            );
+            if (diff < 29) {
+                this.options.view_mode = 'Minute';
+            } else if (diff < 60) {
+                this.options.view_mode = '5 Minutes';
+            } else {
+                this.options.view_mode = '30 Minutes';
+            }
+        }
+
+        if (
+            this.view_is('5 Minutes') ||
+            this.view_is('Minute') ||
+            this.view_is('30 Minutes')
+        ) {
             this.gantt_start = date_utils.start_of(this.gantt_start, 'minute');
             this.gantt_end = date_utils.start_of(this.gantt_end, 'minute');
         } else {
@@ -1219,14 +1278,6 @@ class Gantt {
             this.gantt_end = date_utils.start_of(this.gantt_end, 'day');
         }
 
-        if(this.options.responsive) {
-            // responsiveness is implemented up to 2 hours, then it's 5 Minutes charts with scrollbar
-            if(date_utils.diff(this.gantt_end, this.gantt_start, 'minute') < 29) {
-                this.options.view_mode = 'Minute';
-            } else {
-                this.options.view_mode = '5 Minutes';
-            }
-        }
         // add date padding on both sides
         if (this.view_is(['Quarter Day', 'Half Day'])) {
             this.gantt_start = date_utils.add(this.gantt_start, -7, 'day');
@@ -1237,44 +1288,77 @@ class Gantt {
         } else if (this.view_is('Year')) {
             this.gantt_start = date_utils.add(this.gantt_start, -2, 'year');
             this.gantt_end = date_utils.add(this.gantt_end, 2, 'year');
-        } else if(this.view_is('5 Minutes')) {
+        } else if (this.view_is('30 Minutes')) {
+            // align start to multiply of 30
+            const start_padding = this.gantt_start.getMinutes() % 30;
+            this.gantt_start = date_utils.add(
+                this.gantt_start,
+                -(start_padding == 0 ? 30 : start_padding + 30),
+                'minute'
+            );
+            const startEndDiff = date_utils.diff(
+                this.gantt_end,
+                this.gantt_start,
+                'minute'
+            );
+            const remainder = startEndDiff % 30;
+            this.gantt_end = date_utils.add(
+                this.gantt_end,
+                remainder ? 30 - remainder : 30,
+                'minute'
+            );
+        } else if (this.view_is('5 Minutes')) {
             // align start to multiply of 5
             const start_padding = this.gantt_start.getMinutes() % 5;
             this.gantt_start = date_utils.add(
                 this.gantt_start,
-                - (start_padding == 0 ? 5 : start_padding),
+                -(start_padding == 0 ? 5 : start_padding + 5),
                 'minute'
             );
-            const startEndDiff = date_utils.diff(this.gantt_end, this.gantt_start, 'minute');
-            const minRequiredDiff = this.options.min_columns_count * 5 - 5;
-            if(startEndDiff < minRequiredDiff) {
-                this.gantt_end = date_utils.add(
-                    this.gantt_end,
-                    minRequiredDiff - startEndDiff,
-                    'minute'
-                );
-            }
-        } else if(this.view_is('Minute')) {
+            const startEndDiff = date_utils.diff(
+                this.gantt_end,
+                this.gantt_start,
+                'minute'
+            );
+            const remainder = startEndDiff % 5;
+            this.gantt_end = date_utils.add(
+                this.gantt_end,
+                remainder ? 5 - remainder : 5,
+                'minute'
+            );
+        } else if (this.view_is('Minute')) {
             this.gantt_start = date_utils.add(this.gantt_start, -1, 'minute');
             this.gantt_end = date_utils.add(this.gantt_end, 1, 'minute');
         } else {
             this.gantt_start = date_utils.add(this.gantt_start, -1, 'month');
             this.gantt_end = date_utils.add(this.gantt_end, 1, 'month');
         }
-        
-        if(this.options.responsive) {
-            var gantt_minute_range = date_utils.diff(this.gantt_end, this.gantt_start, 'minute');
-            if(this.view_is('Minute')) {
+
+        if (this.options.responsive) {
+            var gantt_minute_range = date_utils.diff(
+                this.gantt_end,
+                this.gantt_start,
+                'minute'
+            );
+            if (this.view_is('Minute')) {
                 gantt_minute_range += 1;
-                this.options.column_width = Math.floor(this.options.width / gantt_minute_range);
-            } else if(this.view_is('5 Minutes')) {
+                this.options.column_width = Math.floor(
+                    this.options.width / gantt_minute_range
+                );
+            } else if (this.view_is('5 Minutes')) {
                 gantt_minute_range += 5;
                 gantt_minute_range = Math.ceil(gantt_minute_range / 5) * 5;
                 this.options.column_width = Math.floor(
                     this.options.width / gantt_minute_range * 5
                 );
-                if(this.options.column_width < 30) {
-                    this.options.column_width = 30;
+            } else if (this.view_is('30 Minutes')) {
+                gantt_minute_range += 30;
+                gantt_minute_range = Math.ceil(gantt_minute_range / 30) * 30;
+                this.options.column_width = Math.floor(
+                    this.options.width / gantt_minute_range * 30
+                );
+                if (this.options.column_width < 70) {
+                    this.options.column_width = 70;
                 }
             }
         }
@@ -1292,8 +1376,16 @@ class Gantt {
                     cur_date = date_utils.add(cur_date, 1, 'year');
                 } else if (this.view_is('Month')) {
                     cur_date = date_utils.add(cur_date, 1, 'month');
-                } else if (this.view_is('5 Minutes') || this.view_is('Minute')) {
-                    cur_date = date_utils.add(cur_date, this.options.step, 'minute');
+                } else if (
+                    this.view_is('5 Minutes') ||
+                    this.view_is('Minute') ||
+                    this.view_is('30 Minutes')
+                ) {
+                    cur_date = date_utils.add(
+                        cur_date,
+                        this.options.step,
+                        'minute'
+                    );
                 } else {
                     cur_date = date_utils.add(
                         cur_date,
@@ -1308,7 +1400,7 @@ class Gantt {
 
     bind_events() {
         this.bind_grid_click();
-        if(this.options.is_editable) {
+        if (this.options.is_editable) {
             this.bind_bar_events();
         }
     }
@@ -1327,7 +1419,13 @@ class Gantt {
 
     setup_layers() {
         this.layers = {};
-        const layers = ['grid', 'date', 'arrow', 'progress', 'bar', 'details'];
+        let layers = [];
+        if (this.options.hide_legend) {
+            layers = ['grid', 'arrow', 'progress', 'bar', 'details'];
+        } else {
+            layers = ['grid', 'date', 'arrow', 'progress', 'bar', 'details'];
+        }
+
         // make group layers
         for (let layer of layers) {
             this.layers[layer] = createSVG('g', {
@@ -1340,18 +1438,24 @@ class Gantt {
     make_grid() {
         this.make_grid_background();
         this.make_grid_rows();
-        this.make_grid_header();
+        if (!this.options.hide_legend) {
+            this.make_grid_header();
+        }
         this.make_grid_ticks();
         this.make_grid_highlights();
     }
 
     make_grid_background() {
         const grid_width = this.dates.length * this.options.column_width;
-        const grid_height =
+        let grid_height =
             this.options.header_height +
             this.options.padding +
             (this.options.bar_height + this.options.padding) *
                 this.tasks.length;
+
+        if (this.options.hide_legend) {
+            grid_height -= this.options.header_height;
+        }
 
         createSVG('rect', {
             x: 0,
@@ -1375,7 +1479,9 @@ class Gantt {
         const row_width = this.dates.length * this.options.column_width;
         const row_height = this.options.bar_height + this.options.padding;
 
-        let row_y = this.options.header_height + this.options.padding / 2;
+        let row_y = this.options.hide_legend
+            ? this.options.padding / 2
+            : this.options.header_height + this.options.padding / 2;
 
         for (let [index, task] of this.tasks.entries()) {
             createSVG('rect', {
@@ -1387,13 +1493,15 @@ class Gantt {
                 append_to: rows_layer
             });
 
-            if(index !== this.tasks.length - 1) {
+            if (index !== this.tasks.length - 1) {
                 createSVG('line', {
                     x1: 0,
                     y1: row_y + row_height,
                     x2: row_width,
                     y2: row_y + row_height,
-                    class: 'row-line',
+                    class: `row-line ${
+                        this.options.hide_horizontal_lines ? 'hidden' : ''
+                    }`,
                     append_to: lines_layer
                 });
             }
@@ -1417,13 +1525,14 @@ class Gantt {
 
     make_grid_ticks() {
         let tick_x = 0;
-        let tick_y = this.options.header_height + this.options.padding / 2;
+        let tick_y = this.options.hide_legend
+            ? this.options.padding / 2
+            : this.options.header_height + this.options.padding / 2;
         let tick_height =
             (this.options.bar_height + this.options.padding) *
             this.tasks.length;
 
         for (let [index, date] of this.dates.entries()) {
-
             let tick_class = 'tick';
             // thick tick for monday
             if (this.view_is('Day') && date.getDate() === 1) {
@@ -1443,16 +1552,20 @@ class Gantt {
             }
 
             // thick ticks for hours
-            if (this.view_is('5 Minutes' && (date.getMinutes() === 0))) {
+            if (this.view_is('5 Minutes') && date.getMinutes() === 0) {
                 tick_class += ' thick';
             }
 
-            if (this.view_is('Minute') && (date.getMinutes() % 10 === 0)) {
+            if (this.view_is('30 Minutes') && date.getMinutes() === 0) {
+                tick_class += ' thick';
+            }
+
+            if (this.view_is('Minute') && date.getMinutes() % 10 === 0) {
                 tick_class += ' thick';
             }
 
             // dont draw first vertical line
-            if(index !== 0) {
+            if (index !== 0) {
                 createSVG('path', {
                     d: `M ${tick_x} ${tick_y} v ${tick_height}`,
                     class: tick_class,
@@ -1499,31 +1612,34 @@ class Gantt {
     }
 
     make_dates() {
-        for (let [index, date] of this.get_dates_to_draw().entries()) {
-            if(index > 0) {
-                createSVG('text', {
-                    x: date.lower_x - this.options.column_width / 2,
-                    y: date.lower_y,
-                    innerHTML: date.lower_text,
-                    class: 'lower-text',
-                    append_to: this.layers.date
-                });
-            }
+        if (!this.options.hide_legend) {
+            for (let [index, date] of this.get_dates_to_draw().entries()) {
+                if (index > 0) {
+                    createSVG('text', {
+                        x: date.lower_x - this.options.column_width / 2,
+                        y: date.lower_y,
+                        innerHTML: date.lower_text,
+                        class: 'lower-text',
+                        append_to: this.layers.date
+                    });
+                }
 
-            if (date.upper_text) {
-                const $upper_text = createSVG('text', {
-                    x: date.upper_x,
-                    y: date.upper_y,
-                    innerHTML: date.upper_text,
-                    class: 'upper-text',
-                    append_to: this.layers.date
-                });
+                if (date.upper_text) {
+                    const $upper_text = createSVG('text', {
+                        x: date.upper_x,
+                        y: date.upper_y,
+                        innerHTML: date.upper_text,
+                        class: 'upper-text',
+                        append_to: this.layers.date
+                    });
 
-                // remove out-of-bound dates
-                if (
-                    $upper_text.getBBox().x2 > this.layers.grid.getBBox().width
-                ) {
-                    $upper_text.remove();
+                    // remove out-of-bound dates
+                    if (
+                        $upper_text.getBBox().x2 >
+                        this.layers.grid.getBBox().width
+                    ) {
+                        $upper_text.remove();
+                    }
                 }
             }
         }
@@ -1544,11 +1660,15 @@ class Gantt {
             last_date = date_utils.add(date, 1, 'year');
         }
         const date_text = {
-            'Minute_lower':
+            Minute_lower:
                 date.getMinutes() % 10 === 0
                     ? date_utils.format(date, 'HH:mm', this.options.language)
                     : date_utils.format(date, 'mm', this.options.language),
             '5 Minutes_lower':
+                date.getHours() !== last_date.getHours()
+                    ? date_utils.format(date, 'HH:mm', this.options.language)
+                    : date_utils.format(date, 'mm', this.options.language),
+            '30 Minutes_lower':
                 date.getHours() !== last_date.getHours()
                     ? date_utils.format(date, 'HH:mm', this.options.language)
                     : date_utils.format(date, 'mm', this.options.language),
@@ -1572,8 +1692,9 @@ class Gantt {
                     : date_utils.format(date, 'D', this.options.language),
             Month_lower: date_utils.format(date, 'MMMM', this.options.language),
             Year_lower: date_utils.format(date, 'YYYY', this.options.language),
-            'Minute_upper': '',
+            Minute_upper: '',
             '5 Minutes_upper': '',
+            '30 Minutes_upper': '',
             'Quarter Day_upper':
                 date.getDate() !== last_date.getDate()
                     ? date_utils.format(date, 'D MMM', this.options.language)
@@ -1621,8 +1742,9 @@ class Gantt {
             Month_upper: this.options.column_width * 12 / 2,
             Year_lower: this.options.column_width / 2,
             Year_upper: this.options.column_width * 30 / 2,
+            '30 Minutes_lower': this.options.column_width / 2,
             '5 Minutes_lower': this.options.column_width / 2,
-            'Minute_lower': this.options.column_width /2
+            Minute_lower: this.options.column_width / 2
         };
 
         return {

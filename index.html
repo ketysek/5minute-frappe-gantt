@@ -1,115 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>Simple Gantt</title>
-	<style>
-		body {
-			font-family: sans-serif;
-			background: #fff;
-		}
-		.container {
-			width: 80%;
-			margin: 0 auto;
-		}
-		/* custom class */
-		.gantt .bar-finished .bar {
-			fill: #3AA545;
-		}
-		.gantt .bar-running .bar {
-			fill: #229ACE;
-		}
-		.gantt .bar-waiting .bar {
-			fill: #FABE53;
-		}
-		.gantt-container .popup-wrapper .custom-popup {
-			white-space: nowrap;
-			padding: 8px;
-			color: #fff;
-		}
-	</style>
-	<link rel="stylesheet" href="dist/frappe-gantt.css" />
-	<script src="dist/frappe-gantt.js"></script>
-</head>
-<body>
-	<div class="container">
-		<h2>Interactive Gantt Chart entirely made in SVG!</h2>
-		<div class="gantt-target" style="width:918px;margin:0 auto;border: 1px solid black;"></div>
-	</div>
-	<script>
-		var tasks = [
-			{
-				start: '2018-10-01 13:00:30',
-				end: '2018-10-01 15:50:00',
-				name: 'Finished',
-				id: "Task 0",
-				custom_class: 'bar-finished'
-			},
-			/*
-			{
-				start: '2018-10-01 13:01:05',
-				end: '2018-10-01 13:01:10',
-				name: 'Finished',
-				id: "Task 1",
-				dependencies: 'Task 0',
-				custom_class: 'bar-finished'
-			},
-			{
-				start: '2018-10-01 13:02:45',
-				end: '2018-10-01 13:04:20',
-				name: 'Finished',
-				id: "Task 2",
-				dependencies: 'Task 1',
-				custom_class: 'bar-finished'
-			},
-			{
-				start: '2018-10-01 13:04:22',
-				end: '2018-10-01 13:05:20',
-				name: 'Finished',
-				id: "Task 3",
-				dependencies: 'Task 2',
-				custom_class: 'bar-finished'
-			},
-			{
-				start: '2018-10-01 13:05:25',
-				end: '2018-10-01 13:08:00',
-				name: 'Running',
-				id: "Task 4",
-				dependencies: 'Task 2',
-				custom_class: 'bar-running'
-			},
-			{
-				start: '2018-10-01 13:08:12',
-				end: '2018-10-01 13:25:55',
-				name: 'Waiting',
-				id: "Task 5",
-				dependencies: 'Task 4',
-				custom_class: 'bar-waiting'
-			}
-			*/
-		]
-		var gantt_chart = new Gantt(".gantt-target", tasks, {
-			on_click: function (task) {
-				console.log(task);
-			},
-			on_date_change: function(task, start, end) {
-				console.log(task, start, end);
-			},
-			on_progress_change: function(task, progress) {
-				console.log(task, progress);
-			},
-			language: 'en',
-			date_format: 'YYYY-MM-DD HH:mm:ss',
-			header_height: 20,
-			bar_height: 28,
-			is_editable: false,
-			width: 918,
-			responsive: true,
-			popup_trigger: 'mouseover',
-			custom_popup_html: function(task) {
-				return `<div class="custom-popup">${task.id}</div>`
-			}
-		});
-	</script>
-</body>
+    <head>
+        <meta charset="UTF-8" />
+        <title>Simple Gantt</title>
+        <style>
+            body {
+                font-family: sans-serif;
+                background: #fff;
+            }
+            .container {
+                width: 80%;
+                margin: 0 auto;
+            }
+            /* custom class */
+            .gantt .bar-finished .bar {
+                fill: #3aa545;
+            }
+            .gantt .bar-running .bar {
+                fill: #229ace;
+            }
+            .gantt .bar-waiting .bar {
+                fill: #fabe53;
+            }
+            .gantt-container .popup-wrapper .custom-popup {
+                white-space: nowrap;
+                padding: 8px;
+                color: #fff;
+            }
+        </style>
+        <link rel="stylesheet" href="dist/frappe-gantt.css" />
+        <script src="dist/frappe-gantt.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Interactive Gantt Chart entirely made in SVG!</h2>
+            <div
+                class="gantt-target"
+                style="width:918px;margin:0 auto;border: 1px solid black;"
+            ></div>
+        </div>
+        <script>
+            var tasks = [
+                {
+                    start: '2018-10-01 12:02:00',
+                    end: '2018-10-01 12:02:50',
+                    name: 'Finished',
+                    id: 'Task 0',
+                    custom_class: 'bar-finished'
+                },
+                {
+                    start: '2018-10-01 12:02:55',
+                    end: '2018-10-01 12:03:30',
+                    name: 'Finished',
+                    id: 'Task 1',
+                    dependencies: 'Task 0',
+                    custom_class: 'bar-finished'
+                },
+                {
+                    start: '2018-10-01 12:03:45',
+                    end: '2018-10-01 12:04:20',
+                    name: 'Finished',
+                    id: 'Task 2',
+                    dependencies: 'Task 1',
+                    custom_class: 'bar-finished'
+                },
+                {
+                    start: '2018-10-01 12:04:22',
+                    end: '2018-10-01 12:05:20',
+                    name: 'Finished',
+                    id: 'Task 3',
+                    dependencies: 'Task 2',
+                    custom_class: 'bar-finished'
+                },
+                {
+                    start: '2018-10-01 12:05:25',
+                    end: '2018-10-01 12:08:00',
+                    name: 'Running',
+                    id: 'Task 4',
+                    dependencies: 'Task 2',
+                    custom_class: 'bar-running'
+                },
+                {
+                    start: '2018-10-01 12:08:12',
+                    end: '2018-10-01 21:29:00',
+                    name: 'Waiting',
+                    id: 'Task 5',
+                    dependencies: 'Task 4',
+                    custom_class: 'bar-waiting'
+                },
+                {
+                    start: '2018-10-01 21:29:01',
+                    end: '2018-10-02 12:01:00',
+                    name: 'Finished',
+                    id: 'Task 6',
+                    dependencies: '',
+                    custom_class: 'bar-finished'
+                }
+            ];
+            var gantt_chart = new Gantt('.gantt-target', tasks, {
+                on_click: function(task) {
+                    console.log(task);
+                },
+                on_date_change: function(task, start, end) {
+                    console.log(task, start, end);
+                },
+                on_progress_change: function(task, progress) {
+                    console.log(task, progress);
+                },
+                language: 'en',
+                date_format: 'YYYY-MM-DD HH:mm:ss',
+                header_height: 20,
+                bar_height: 28,
+                padding: 10,
+                is_editable: false,
+                width: 918,
+                responsive: true,
+                popup_trigger: 'mouseover',
+                start_date: '2018-10-01 12:02:00',
+                end_date: '2018-10-02 12:01:00',
+                hide_horizontal_lines: true,
+                hide_legend: true,
+                custom_popup_html: function(task) {
+                    return `<div class="custom-popup">${task.id}</div>`;
+                }
+            });
+        </script>
+    </body>
 </html>

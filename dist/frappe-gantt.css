@@ -8,8 +8,10 @@
   fill: #ffffff; }
 
 .gantt .row-line {
-  stroke: #CBCCD0;
+  stroke: #cbccd0;
   stroke-width: 1px; }
+  .gantt .row-line.hidden {
+    stroke: transparent; }
 
 .gantt .tick {
   stroke: rgba(196, 196, 196, 0.4);
@@ -28,9 +30,9 @@
 
 .gantt .bar {
   fill: #b8c2cc;
-  stroke: #8D99A6;
+  stroke: #8d99a6;
   stroke-width: 0;
-  transition: stroke-width .3s ease;
+  transition: stroke-width 0.3s ease;
   user-select: none; }
 
 .gantt .bar-progress {
@@ -38,7 +40,7 @@
 
 .gantt .bar-invalid {
   fill: transparent;
-  stroke: #8D99A6;
+  stroke: #8d99a6;
   stroke-width: 1;
   stroke-dasharray: 5; }
   .gantt .bar-invalid ~ .bar-label {
@@ -59,7 +61,7 @@
   cursor: ew-resize;
   opacity: 0;
   visibility: hidden;
-  transition: opacity .3s ease; }
+  transition: opacity 0.3s ease; }
 
 .gantt .bar-wrapper {
   cursor: pointer;
@@ -80,7 +82,8 @@
     stroke-width: 1;
     stroke: #222; }
 
-.gantt .lower-text, .gantt .upper-text {
+.gantt .lower-text,
+.gantt .upper-text {
   font-size: 13px;
   text-anchor: middle; }
 
