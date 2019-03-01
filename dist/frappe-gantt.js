@@ -1357,8 +1357,8 @@ class Gantt {
                 this.options.column_width = Math.floor(
                     this.options.width / gantt_minute_range * 30
                 );
-                if (this.options.column_width < 70) {
-                    this.options.column_width = 70;
+                if (this.options.column_width < 150) {
+                    this.options.column_width = 150;
                 }
             }
         }
