@@ -1163,12 +1163,15 @@ class Gantt {
         }
     }
 
-    refresh(tasks, start_date = null, end_date = null) {
+    refresh(tasks, start_date = null, end_date = null, hide_legend = null) {
         if (start_date) {
             this.options.start_date = start_date;
         }
         if (end_date) {
             this.options.end_date = end_date;
+        }
+        if (hide_legend !== null) {
+            this.options.hide_legend = hide_legend;
         }
         this.setup_tasks(tasks);
         this.change_view_mode();
