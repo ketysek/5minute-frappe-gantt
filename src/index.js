@@ -682,10 +682,7 @@ export default class Gantt {
                 date.getHours() !== last_date.getHours()
                     ? date_utils.format(date, 'HH:mm', this.options.language)
                     : date_utils.format(date, 'mm', this.options.language),
-            '30 Minutes_lower':
-                date.getHours() !== last_date.getHours()
-                    ? date_utils.format(date, 'HH:mm', this.options.language)
-                    : date_utils.format(date, 'mm', this.options.language),
+            '30 Minutes_lower': date_utils.format(date, 'HH:mm', this.options.language),
             'Quarter Day_lower': date_utils.format(
                 date,
                 'HH',
