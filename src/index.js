@@ -250,8 +250,24 @@ export default class Gantt {
         this.gantt_start = this.gantt_end = null;
 
         if (this.options.start_date && this.options.end_date) {
-            this.gantt_start = new Date(this.options.start_date);
-            this.gantt_end = new Date(this.options.end_date);
+            const start = this.options.start_date.split(/[^0-9]/);
+            const end = this.options.end_date.split(/[^0-9]/);
+            this.gantt_start = new Date(
+                start[0],
+                start[1] - 1,
+                start[2],
+                start[3],
+                start[4],
+                start[5]
+            );
+            this.gantt_end = new Date(
+                end[0],
+                end[1] - 1,
+                end[2],
+                end[3],
+                end[4],
+                end[5]
+            );
         } else {
             for (let task of this.tasks) {
                 // set global start and end date
@@ -682,7 +698,11 @@ export default class Gantt {
                 date.getHours() !== last_date.getHours()
                     ? date_utils.format(date, 'HH:mm', this.options.language)
                     : date_utils.format(date, 'mm', this.options.language),
-            '30 Minutes_lower': date_utils.format(date, 'HH:mm', this.options.language),
+            '30 Minutes_lower': date_utils.format(
+                date,
+                'HH:mm',
+                this.options.language
+            ),
             'Quarter Day_lower': date_utils.format(
                 date,
                 'HH',
