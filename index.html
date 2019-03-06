@@ -53,7 +53,6 @@
                     end: '2018-10-01 12:03:30',
                     name: 'Finished',
                     id: 'Task 1',
-                    dependencies: 'Task 0',
                     custom_class: 'bar-finished'
                 },
                 {
@@ -61,7 +60,6 @@
                     end: '2018-10-01 12:04:20',
                     name: 'Finished',
                     id: 'Task 2',
-                    dependencies: 'Task 1',
                     custom_class: 'bar-finished'
                 },
                 {
@@ -69,7 +67,6 @@
                     end: '2018-10-01 12:05:20',
                     name: 'Finished',
                     id: 'Task 3',
-                    dependencies: 'Task 2',
                     custom_class: 'bar-finished'
                 },
                 {
@@ -77,24 +74,14 @@
                     end: '2018-10-01 12:08:00',
                     name: 'Running',
                     id: 'Task 4',
-                    dependencies: 'Task 2',
                     custom_class: 'bar-running'
                 },
                 {
                     start: '2018-10-01 12:08:12',
-                    end: '2018-10-01 21:29:00',
+                    end: '2018-10-01 13:01:00',
                     name: 'Waiting',
                     id: 'Task 5',
-                    dependencies: 'Task 4',
                     custom_class: 'bar-waiting'
-                },
-                {
-                    start: '2018-10-01 21:29:01',
-                    end: '2018-10-02 12:01:00',
-                    name: 'Finished',
-                    id: 'Task 6',
-                    dependencies: '',
-                    custom_class: 'bar-finished'
                 }
             ];
             var gantt_chart = new Gantt('.gantt-target', tasks, {
@@ -116,8 +103,9 @@
                 width: 918,
                 responsive: true,
                 popup_trigger: 'mouseover',
-                start_date: '2018-10-01 12:02:00',
-                end_date: '2018-10-02 12:01:00',
+                start_date: '2018-10-01 11:30:00',
+                end_date: '2018-10-01 14:00:00',
+                start_end_force: true,
                 hide_horizontal_lines: true,
                 hide_legend: false,
                 custom_popup_html: function(task) {

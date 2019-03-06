@@ -95,7 +95,8 @@ export default class Gantt {
             width: 1000,
             responsive: false,
             hide_horizontal_lines: false,
-            hide_legend: false
+            hide_legend: false,
+            start_end_force: false
         };
         this.options = Object.assign({}, default_options, options);
     }
@@ -296,72 +297,88 @@ export default class Gantt {
             }
         }
 
-        if (
-            this.view_is('5 Minutes') ||
-            this.view_is('Minute') ||
-            this.view_is('30 Minutes')
-        ) {
-            this.gantt_start = date_utils.start_of(this.gantt_start, 'minute');
-            this.gantt_end = date_utils.start_of(this.gantt_end, 'minute');
-        } else {
-            this.gantt_start = date_utils.start_of(this.gantt_start, 'day');
-            this.gantt_end = date_utils.start_of(this.gantt_end, 'day');
-        }
+        if (!this.options.start_end_force) {
+            if (
+                this.view_is('5 Minutes') ||
+                this.view_is('Minute') ||
+                this.view_is('30 Minutes')
+            ) {
+                this.gantt_start = date_utils.start_of(
+                    this.gantt_start,
+                    'minute'
+                );
+                this.gantt_end = date_utils.start_of(this.gantt_end, 'minute');
+            } else {
+                this.gantt_start = date_utils.start_of(this.gantt_start, 'day');
+                this.gantt_end = date_utils.start_of(this.gantt_end, 'day');
+            }
 
-        // add date padding on both sides
-        if (this.view_is(['Quarter Day', 'Half Day'])) {
-            this.gantt_start = date_utils.add(this.gantt_start, -7, 'day');
-            this.gantt_end = date_utils.add(this.gantt_end, 7, 'day');
-        } else if (this.view_is('Month')) {
-            this.gantt_start = date_utils.start_of(this.gantt_start, 'year');
-            this.gantt_end = date_utils.add(this.gantt_end, 1, 'year');
-        } else if (this.view_is('Year')) {
-            this.gantt_start = date_utils.add(this.gantt_start, -2, 'year');
-            this.gantt_end = date_utils.add(this.gantt_end, 2, 'year');
-        } else if (this.view_is('30 Minutes')) {
-            // align start to multiply of 30
-            const start_padding = this.gantt_start.getMinutes() % 30;
-            this.gantt_start = date_utils.add(
-                this.gantt_start,
-                -(start_padding == 0 ? 30 : start_padding + 30),
-                'minute'
-            );
-            const startEndDiff = date_utils.diff(
-                this.gantt_end,
-                this.gantt_start,
-                'minute'
-            );
-            const remainder = startEndDiff % 30;
-            this.gantt_end = date_utils.add(
-                this.gantt_end,
-                remainder ? 30 - remainder : 30,
-                'minute'
-            );
-        } else if (this.view_is('5 Minutes')) {
-            // align start to multiply of 5
-            const start_padding = this.gantt_start.getMinutes() % 5;
-            this.gantt_start = date_utils.add(
-                this.gantt_start,
-                -(start_padding == 0 ? 5 : start_padding + 5),
-                'minute'
-            );
-            const startEndDiff = date_utils.diff(
-                this.gantt_end,
-                this.gantt_start,
-                'minute'
-            );
-            const remainder = startEndDiff % 5;
-            this.gantt_end = date_utils.add(
-                this.gantt_end,
-                remainder ? 5 - remainder : 5,
-                'minute'
-            );
-        } else if (this.view_is('Minute')) {
-            this.gantt_start = date_utils.add(this.gantt_start, -1, 'minute');
-            this.gantt_end = date_utils.add(this.gantt_end, 1, 'minute');
-        } else {
-            this.gantt_start = date_utils.add(this.gantt_start, -1, 'month');
-            this.gantt_end = date_utils.add(this.gantt_end, 1, 'month');
+            // add date padding on both sides
+            if (this.view_is(['Quarter Day', 'Half Day'])) {
+                this.gantt_start = date_utils.add(this.gantt_start, -7, 'day');
+                this.gantt_end = date_utils.add(this.gantt_end, 7, 'day');
+            } else if (this.view_is('Month')) {
+                this.gantt_start = date_utils.start_of(
+                    this.gantt_start,
+                    'year'
+                );
+                this.gantt_end = date_utils.add(this.gantt_end, 1, 'year');
+            } else if (this.view_is('Year')) {
+                this.gantt_start = date_utils.add(this.gantt_start, -2, 'year');
+                this.gantt_end = date_utils.add(this.gantt_end, 2, 'year');
+            } else if (this.view_is('30 Minutes')) {
+                // align start to multiply of 30
+                const start_padding = this.gantt_start.getMinutes() % 30;
+                this.gantt_start = date_utils.add(
+                    this.gantt_start,
+                    -(start_padding == 0 ? 30 : start_padding + 30),
+                    'minute'
+                );
+                const startEndDiff = date_utils.diff(
+                    this.gantt_end,
+                    this.gantt_start,
+                    'minute'
+                );
+                const remainder = startEndDiff % 30;
+                this.gantt_end = date_utils.add(
+                    this.gantt_end,
+                    remainder ? 30 - remainder : 30,
+                    'minute'
+                );
+            } else if (this.view_is('5 Minutes')) {
+                // align start to multiply of 5
+                const start_padding = this.gantt_start.getMinutes() % 5;
+                this.gantt_start = date_utils.add(
+                    this.gantt_start,
+                    -(start_padding == 0 ? 5 : start_padding + 5),
+                    'minute'
+                );
+                const startEndDiff = date_utils.diff(
+                    this.gantt_end,
+                    this.gantt_start,
+                    'minute'
+                );
+                const remainder = startEndDiff % 5;
+                this.gantt_end = date_utils.add(
+                    this.gantt_end,
+                    remainder ? 5 - remainder : 5,
+                    'minute'
+                );
+            } else if (this.view_is('Minute')) {
+                this.gantt_start = date_utils.add(
+                    this.gantt_start,
+                    -1,
+                    'minute'
+                );
+                this.gantt_end = date_utils.add(this.gantt_end, 1, 'minute');
+            } else {
+                this.gantt_start = date_utils.add(
+                    this.gantt_start,
+                    -1,
+                    'month'
+                );
+                this.gantt_end = date_utils.add(this.gantt_end, 1, 'month');
+            }
         }
 
         if (this.options.responsive) {
