@@ -609,7 +609,9 @@ class Bar {
 
                 this.gantt.unselect_all();
                 this.group.classList.toggle('active');
-                this.show_popup();
+                if (this.gantt.options.popup_enabled) {
+                    this.show_popup();
+                }
             }
         );
     }
@@ -1083,6 +1085,7 @@ class Gantt {
             start_date: null,
             end_date: null,
             popup_trigger: 'click',
+            popup_enabled: true,
             custom_popup_html: null,
             language: 'en',
             is_editable: true,

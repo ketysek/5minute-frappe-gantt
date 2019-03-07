@@ -206,7 +206,9 @@ export default class Bar {
 
                 this.gantt.unselect_all();
                 this.group.classList.toggle('active');
-                this.show_popup();
+                if (this.gantt.options.popup_enabled) {
+                    this.show_popup();
+                }
             }
         );
     }

@@ -88,6 +88,7 @@ export default class Gantt {
             start_date: null,
             end_date: null,
             popup_trigger: 'click',
+            popup_enabled: true,
             custom_popup_html: null,
             language: 'en',
             is_editable: true,
